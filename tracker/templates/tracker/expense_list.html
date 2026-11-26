@@ -1,0 +1,104 @@
+{% extends 'tracker/base.html' %}
+{% block title %}Expenses{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <h3 class="mb-0"><i class="bi bi-receipt"></i> My Expenses</h3>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'export_expenses_csv' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
+       class="btn btn-outline-success">
+      <i class="bi bi-filetype-csv"></i> Export CSV
+    </a>
+    <a href="{% url 'export_expenses_pdf' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
+       class="btn btn-outline-danger">
+      <i class="bi bi-file-earmark-pdf"></i> Export PDF
+    </a>
+    <a href="{% url 'expense_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Expense</a>
+  </div>
+</div>
+<!-- Search & Filter -->
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label small mb-1">Search (note)</label>
+        <input type="text" name="q" class="form-control" value="{{ filters.q }}" placeholder="Search...">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small mb-1">Category</label>
+        <select name="category" class="form-select">
+          <option value="">All</option>
+          {% for value, label in categories %}
+            <option value="{{ value }}" {% if filters.category == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small mb-1">Month</label>
+        <input type="month" name="month" class="form-control" value="{{ filters.month }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small mb-1">From</label>
+        <input type="date" name="date_from" class="form-control" value="{{ filters.date_from }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small mb-1">To</label>
+        <input type="date" name="date_to" class="form-control" value="{{ filters.date_to }}">
+      </div>
+      <div class="col-md-1 d-grid">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+      </div>
+      <div class="col-12">
+        <a href="{% url 'expense_list' %}" class="small">Clear filters</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Note</th>
+            <th class="text-end">Amount (₹)</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in expenses %}
+          <tr>
+            <td>{{ e.date|date:"d M Y" }}</td>
+            <td><span class="badge text-bg-secondary">{{ e.category }}</span></td>
+            <td>{{ e.note|default:"-" }}</td>
+            <td class="text-end">{{ e.amount }}</td>
+            <td class="text-center">
+              <a href="{% url 'expense_edit' e.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+              <form method="post" action="{% url 'expense_delete' e.pk %}" class="d-inline js-delete-form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center text-muted py-4">No expenses found.</td></tr>
+          {% endfor %}
+        </tbody>
+        {% if expenses %}
+        <tfoot>
+          <tr class="fw-bold">
+            <td colspan="3" class="text-end">Total:</td>
+            <td class="text-end">₹ {{ total }}</td>
+            <td></td>
+          </tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

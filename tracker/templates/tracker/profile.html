@@ -1,0 +1,47 @@
+{% extends 'tracker/base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h3 class="mb-3"><i class="bi bi-person-circle"></i> My Profile</h3>
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="mb-3">Account Details</h5>
+        <table class="table table-borderless mb-0">
+          <tr><th>Username</th><td>{{ user.username }}</td></tr>
+          <tr><th>Name</th><td>{{ profile.name }}</td></tr>
+          <tr><th>Age</th><td>{{ profile.age }}</td></tr>
+          <tr><th>Date of Birth</th><td>{{ profile.dob|date:"d M Y" }}</td></tr>
+          <tr><th>Member since</th><td>{{ user.date_joined|date:"d M Y" }}</td></tr>
+        </table>
+        <a href="{% url 'change_pin' %}" class="btn btn-outline-secondary btn-sm mt-3">
+          <i class="bi bi-shield-lock"></i> Change Security PIN
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="mb-3">Edit Profile</h5>
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% for error in field.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

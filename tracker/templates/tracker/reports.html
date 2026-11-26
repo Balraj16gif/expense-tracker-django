@@ -1,0 +1,45 @@
+{% extends 'tracker/base.html' %}
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+  <h3 class="mb-2 mb-md-0"><i class="bi bi-bar-chart-line"></i> Reports</h3>
+  <form method="get" class="d-flex gap-2">
+    <input type="month" name="month" class="form-control" value="{{ selected_month }}">
+    <button type="submit" class="btn btn-primary">Show</button>
+  </form>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="mb-3">Category-wise Expense ({{ month_label }})</h5>
+        {% if has_pie %}
+          <canvas id="categoryChart"></canvas>
+          <p class="text-center text-muted small mt-3 mb-0">Total: ₹ {{ month_total|floatformat:2 }}</p>
+        {% else %}
+          <p class="text-muted mb-0">No expenses recorded for this month.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="mb-3">Month-wise Expense vs Income ({{ year }})</h5>
+        <canvas id="monthlyChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ chart_data|json_script:"chart-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% load static %}
+<script src="{% static 'js/charts.js' %}"></script>
+{% endblock %}

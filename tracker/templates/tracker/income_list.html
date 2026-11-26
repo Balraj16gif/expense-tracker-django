@@ -1,0 +1,55 @@
+{% extends 'tracker/base.html' %}
+{% block title %}Income{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0"><i class="bi bi-piggy-bank"></i> My Income</h3>
+  <a href="{% url 'income_add' %}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Add Income</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Source</th>
+            <th>Note</th>
+            <th class="text-end">Amount (₹)</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in incomes %}
+          <tr>
+            <td>{{ i.date|date:"d M Y" }}</td>
+            <td>{{ i.source }}</td>
+            <td>{{ i.note|default:"-" }}</td>
+            <td class="text-end">{{ i.amount }}</td>
+            <td class="text-center">
+              <a href="{% url 'income_edit' i.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+              <form method="post" action="{% url 'income_delete' i.pk %}" class="d-inline js-delete-form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="text-center text-muted py-4">No income found.</td></tr>
+          {% endfor %}
+        </tbody>
+        {% if incomes %}
+        <tfoot>
+          <tr class="fw-bold">
+            <td colspan="3" class="text-end">Total:</td>
+            <td class="text-end">₹ {{ total }}</td>
+            <td></td>
+          </tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

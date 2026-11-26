@@ -1,0 +1,61 @@
+{% extends 'tracker/base.html' %}
+{% block title %}Budget{% endblock %}
+
+{% block content %}
+<h3 class="mb-3"><i class="bi bi-bullseye"></i> Monthly Budget</h3>
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">Set Budget</h5>
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% for error in field.errors %}
+                <div class="text-danger small">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary w-100">Save Budget</button>
+          <p class="text-muted small mt-2 mb-0">Saving a budget for an existing month will update it.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">My Budgets</h5>
+        {% for r in rows %}
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <strong>{{ r.label }}</strong>
+              <form method="post" action="{% url 'budget_delete' r.pk %}" class="js-delete-form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+            <div class="d-flex justify-content-between small text-muted mb-1">
+              <span>Spent: ₹ {{ r.spent|floatformat:2 }}</span>
+              <span>Budget: ₹ {{ r.amount|floatformat:2 }}</span>
+            </div>
+            <div class="progress" style="height: 20px;">
+              <div class="progress-bar bg-{{ r.color }}" style="width: {{ r.bar_percent }}%;">{{ r.percent }}%</div>
+            </div>
+            {% if r.over %}
+              <div class="text-danger small mt-1">⚠️ Budget exceeded for this month.</div>
+            {% endif %}
+          </div>
+        {% empty %}
+          <p class="text-muted mb-0">No budgets set yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
